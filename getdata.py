@@ -10,14 +10,15 @@ def main(*args):
 
 
     '''
-    if len(args) != 4:
-        print 'need four arguments'
+    if len(args) != 5:
+        print 'need five arguments'
         return
     
     automatip = args[0]
     port = int(args[1])
     couchS = args[2]
     dbname = args[3]
+    sleepttime = args[4]
 
     print automatip, port, couchS, dbname
 
@@ -89,7 +90,7 @@ def main(*args):
             if len(docs)%checkpoint==0:
                 docs = upload(db,docs)
                 
-            time.sleep(15)  #sleep for 15 seconds
+            time.sleep(sleeptime)  #sleep...
 
     except Exception as inst:
         print type(inst)     # the exception instance
