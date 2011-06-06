@@ -1,0 +1,6 @@
+function(doc) {
+  if (doc.Temperature && doc.type == "daqdocument" && doc.file_number >= 0){
+	emit([doc.run_name, doc.type, doc.file_number], [doc.Temperature, doc['Date.secondes']]);
+
+  }
+}

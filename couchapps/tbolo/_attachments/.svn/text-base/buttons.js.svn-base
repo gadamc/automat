@@ -1,0 +1,213 @@
+var db = $.couch.db(window.location.pathname.split("/")[1]);
+
+$(document).ready(function() {
+	setLastRunOptions(null);
+    setFirstRunOptions(null);
+                  
+    $('#getTempsId').click(function(e) {
+
+    	setTableTopRow();
+          
+        getTemperatureFromDb();                                  
+                                        
+     });
+
+     $('#clearId').click(function(e) {
+     	setLastRunOptions(null);
+        setFirstRunOptions(null);
+     });
+});
+
+
+
+function getTemperatureFromDb(){
+	db.view("temperature/gettemps",  {
+          
+    	endkey:[$('#lastrunId').val()+"\ufff0","{}"],
+        startkey:[$('#firstrunId').val(),"{}"],
+        success:function(data){ 
+        	data.rows.map(function(row) {
+        	   if(row.key[1] == "samba run header"){
+        	        var num = row.value*1000.0;
+        	        
+                    addToTable(row.key[0], row.key[2], num.toFixed(5));
+               }
+               else if (row.key[1] == "addendum"){
+                    var num = row.value*1000.0;
+                    
+                    addToTable("",  row.key[2], num.toFixed(5));
+               }
+         	});
+         },
+         error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+    });
+}
+
+function setTableTopRow(){
+	var tbl = document.getElementById('temperatureData');
+	var tblbody = tbl.getElementsByTagName("tbody");
+	
+	for(var i = 0; i < tblbody.length; i++){tbl.removeChild(tblbody[i]);}
+	
+	var tblbody = document.createElement("tbody");
+	tblbody.setAttribute("id","tempTableBody");
+	var row = document.createElement("tr");
+	
+	var cell = document.createElement("td");
+	cell.setAttribute("width","80");
+	var celltext  = document.createTextNode(" Run ");
+	cell.appendChild(celltext);
+	row.appendChild(cell);
+	
+	var cell = document.createElement("td");
+	cell.setAttribute("width","80");
+	var celltext  = document.createTextNode(" File(Partition) ");
+	cell.appendChild(celltext);
+	row.appendChild(cell);
+	
+	var cell = document.createElement("td");
+	cell.setAttribute("width","80");
+	var celltext  = document.createTextNode(" Temp (mK) ");
+	cell.appendChild(celltext);
+	row.appendChild(cell);
+	
+	tblbody.appendChild(row);
+	tbl.appendChild(tblbody);
+	tbl.setAttribute("border", "0");
+}
+
+function addToTable(run, file, temperature){
+	var tblbody = document.getElementById('tempTableBody');
+	var row = document.createElement("tr");
+	
+	var cell = document.createElement("td");
+	cell.setAttribute("width","80");
+	var celltext  = document.createTextNode(run);
+	cell.appendChild(celltext);
+	row.appendChild(cell);
+	
+	var cell = document.createElement("td");
+	cell.setAttribute("width","80");
+	var celltext  = document.createTextNode(file);
+	cell.appendChild(celltext);
+	row.appendChild(cell);
+	
+	var cell = document.createElement("td");
+	cell.setAttribute("width","80");
+	cell.setAttribute("align","right");
+	var celltext  = document.createTextNode(temperature);
+	cell.appendChild(celltext);
+	row.appendChild(cell);
+	
+	tblbody.appendChild(row);
+}
+
+function setFirstRunOptions(chosen) {
+  var selbox = document.temperatureform.firstrun;
+  
+  
+  if (!chosen || chosen == "") {
+    var currentval = selbox.options[selbox.selectedIndex].value;
+    selbox.options.length = 0;
+    selbox.options[selbox.options.length] = new Option("all","");
+    db.view("bolo/runname",  {
+            
+   		group:true,
+   		descending:true,
+        success:function(data){ 
+        	data.rows.map(function(row) {
+              if(row.key == currentval){
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key, true, true);                          
+              }
+              else {
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key); 
+              }                      
+        	});
+        },
+        error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+    });
+    
+  }
+  
+  else if (chosen != "") {
+    var currentval = selbox.options[selbox.selectedIndex].value;
+    selbox.options.length = 0;
+    selbox.options[selbox.options.length] = new Option("all","");
+    db.view("bolo/runname",  {
+            
+  	  group:true,
+      startkey:chosen,
+      descending:true,
+      success:function(data){ 
+    	  data.rows.map(function(row) {
+        	  if(row.key == currentval){
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key, true, true);                          
+              }
+              else {
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key); 
+              }
+          });
+            
+       },
+       error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+    });
+    
+    
+  } 
+  
+}
+
+function setLastRunOptions(chosen) {
+  var selbox = document.temperatureform.lastrun;
+  
+  
+  if (!chosen || chosen == "") {
+    var currentval = selbox.options[selbox.selectedIndex].value;
+    
+    selbox.options.length = 0;
+    selbox.options[selbox.options.length] = new Option("all","");
+    db.view("bolo/runname",  {
+            
+		group:true,
+		descending:true,
+        success:function(data){ 
+        	data.rows.map(function(row) {
+                if(row.key == currentval){
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key, true, true);                          
+                }
+                else {
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key); 
+                }      
+            });
+        },
+        error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+     });
+  }
+  
+  else  if (chosen != ""){
+    var currentval = selbox.options[selbox.selectedIndex].value;
+    
+    selbox.options.length = 0;
+    selbox.options[selbox.options.length] = new Option("all","");
+    db.view("bolo/runname",  {
+            
+    	group:true,
+        endkey:chosen,  //since i reverse the order with descending == true, i change the start/end key appropriately
+        descending:true,
+        success:function(data){ 
+        	data.rows.map(function(row) {
+            	if(row.key == currentval){
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key, true, true);                          
+                }
+                else {
+              	  selbox.options[selbox.options.length] = new Option(row.key,row.key); 
+                }
+            });
+        },
+        error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+    });
+    
+  }
+  
+}
+

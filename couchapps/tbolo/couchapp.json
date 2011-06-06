@@ -1,0 +1,4 @@
+{
+    "name": "Temperature Display",
+    "description": "This should display the temperature in the cryostat as reported by the Automat."
+}
