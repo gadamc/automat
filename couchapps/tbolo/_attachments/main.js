@@ -3,8 +3,8 @@ var db = $.couch.db(window.location.pathname.split("/")[1]);
 $(document).ready(function() {
 	//setLastRunOptions(null);
     //setFirstRunOptions(null);
-    populateTodaydropdown("lastdaydropdown", "lastmonthdropdown", "lastyeardropdown")
-    populateLastWeekdropdown("firstdaydropdown", "firstmonthdropdown", "firstyeardropdown")
+    initialPopulateDropdown(0, "lasthourdropdown", "lastdaydropdown", "lastmonthdropdown", "lastyeardropdown")
+    initialPopulateDropdown(4, "firsthourdropdown", "firstdaydropdown", "firstmonthdropdown", "firstyeardropdown")
     getTemperatureFromDbToPlot()
                     
     $('#getTempsId').click(function(e) {
@@ -27,47 +27,54 @@ $(document).ready(function() {
 
     var monthtext=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
 
-function populateTodaydropdown(dayfield, monthfield, yearfield){
+function initialPopulateDropdown(hourDiff, hourfield, dayfield, monthfield, yearfield){
         var today=new Date()
+        today.setUTCHours(today.getUTCHours() - hourDiff)
+        var hourfield=document.getElementById(hourfield)
         var dayfield=document.getElementById(dayfield)
         var monthfield=document.getElementById(monthfield)
         var yearfield=document.getElementById(yearfield)
+        for (var i=0; i<24; i++)
+            hourfield.options[i]=new Option(i+1, i+1)
+        hourfield.options[today.getUTCHours()-1]=new Option(today.getUTCHours(), today.getUTCHours(), true, true) //select today's day
+        
         for (var i=0; i<31; i++)
             dayfield.options[i]=new Option(i+1, i+1)
-        dayfield.options[today.getDate()-1]=new Option(today.getDate(), today.getDate(), true, true) //select today's day
+        dayfield.options[today.getUTCDate()-1]=new Option(today.getUTCDate(), today.getUTCDate(), true, true) //select today's day
         
         for (var m=0; m<12; m++)
             monthfield.options[m]=new Option(monthtext[m], m)
             
-        monthfield.options[today.getMonth()]=new Option(monthtext[today.getMonth()], today.getMonth(), true, true) //select today's month
+        monthfield.options[today.getUTCMonth()]=new Option(monthtext[today.getUTCMonth()], today.getUTCMonth(), true, true) //select today's month
         
-        var thisyear=today.getFullYear()
-        for (var y=0; y<5; y++){
+        var thisyear=today.getUTCFullYear()
+        for (var y=0; y<2; y++){
             yearfield.options[y]=new Option(thisyear, thisyear)
-            thisyear+=1
+            thisyear-=1
         }
-        yearfield.options[0]=new Option(today.getFullYear(), today.getFullYear(), true, true) //select today's year
+        yearfield.options[0]=new Option(today.getUTCFullYear(), today.getUTCFullYear(), true, true) //select today's year
 }
-    
-function populateLastWeekdropdown(dayfield, monthfield, yearfield){
-        var lastweek=new Date()
-        lastweek.setDate(lastweek.getDate()-7)
+  /*  
+function initialPopulateDropdown(dayfield, monthfield, yearfield){
+        var today=new Date()
+        //today.setUTCDate(lastweek.getUTCDate())
         var dayfield=document.getElementById(dayfield)
         var monthfield=document.getElementById(monthfield)
         var yearfield=document.getElementById(yearfield)
         for (var i=0; i<31; i++)
             dayfield.options[i]=new Option(i+1, i+1)
-        dayfield.options[lastweek.getDate()-1]=new Option(lastweek.getDate(), lastweek.getDate(), true, true) //select last week's day
+        dayfield.options[today.getUTCDate()-1]=new Option(today.getUTCDate(), today.getUTCDate(), true, true) //select last week's day
         for (var m=0; m<12; m++)
             monthfield.options[m]=new Option(monthtext[m], m)
-        monthfield.options[lastweek.getMonth()]=new Option(monthtext[lastweek.getMonth()], lastweek.getMonth(), true, true) //select last weeks's month
-        var thisyear=lastweek.getFullYear()
+        monthfield.options[today.getUTCMonth()]=new Option(monthtext[today.getUTCMonth()], today.getUTCMonth(), true, true) //select last weeks's month
+        var thisyear=today.getUTCFullYear()
         for (var y=0; y<5; y++){
             yearfield.options[y]=new Option(thisyear, thisyear)
             thisyear+=1
         }
-        yearfield.options[0]=new Option(lastweek.getFullYear(), lastweek.getFullYear(), true, true) //select today's year
+        yearfield.options[0]=new Option(today.getUTCFullYear(), today.getUTCFullYear(), true, true) //select today's year
 }
+*/
     
 function getTemperatureFromDbToPlot(){
 
@@ -184,13 +191,15 @@ function getTemperatureFromDbToPlot(){
     var endyear = parseInt($('#lastyeardropdown').val());
     var endmonth = parseInt($('#lastmonthdropdown').val()) + 1;
     var endday = parseInt($('#lastdaydropdown').val());
+    var endhour = parseInt($('#lasthourdropdown').val());
     var startyear = parseInt($('#firstyeardropdown').val());
     var startmonth = parseInt($('#firstmonthdropdown').val()) + 1;
     var startday = parseInt($('#firstdaydropdown').val());
+    var starthour = parseInt($('#firsthourdropdown').val());
     
     db.view("tbolo/getTbolo",  {
-        endkey:[ endyear, endmonth, endday, 60],
-        startkey:[startyear , startmonth, startday, 0],
+        endkey:[ endyear, endmonth, endday, endhour, 60],
+        startkey:[startyear , startmonth, startday, starthour, 0],
         //endkey:[2011,6, 6, 60],
         //startkey:[2011,6, 6, 0],
         success:function(data){ 

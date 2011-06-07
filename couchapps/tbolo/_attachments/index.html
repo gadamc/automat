@@ -18,20 +18,30 @@
   
   <body>
     
-    <h3>Temperature for a range of Dates (defaults to show the past week of data)</h3>
+    <h3>Temperature for a range of Dates (defaults to show the last 4 hours) </h3><br>
+     Note: If you select a large range of dates, it may bog down your browser/computer.... be patient.
+    <br>
+         Using your mouse, you can drag a box in the graph and zoom in.
+    <br> The dates are in UTC (Universal Time), which is -2/-1 hours different from Paris time.
+    <br><br><br>
+
         
     
     <form name="temperatureform">
     
-            Start Date <br>
+            Start Date (Hour, Day, Month, Year)<br><br>
+            <select id="firsthourdropdown">
+            </select> 
             <select id="firstdaydropdown">
             </select> 
             <select id="firstmonthdropdown">
             </select> 
             <select id="firstyeardropdown">
             </select> 
-
-            <br>End Date <br>
+            <br>
+            <br>End Date <br><br>
+            <select id="lasthourdropdown">
+            </select> 
             <select id="lastdaydropdown">
             </select> 
             <select id="lastmonthdropdown">
