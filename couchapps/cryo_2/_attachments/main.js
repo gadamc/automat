@@ -1,7 +1,12 @@
 var db = $.couch.db(window.location.pathname.split("/")[1]);
 
 var monthtext=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
-var cryoVal=['T_Bolo', 'T_Speer'];  //the order of this list must match the order of the output values in the getData view!
+
+//the order of the elements in cryoVal must match the order of the output values in the getData view!
+var cryoVal=['T_Bolo', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
+                'P_injection', 'debit', 'I_Alim1', 'I_Alim2',
+                'I_Alim3', 'I_Alim4', 'GM_P', 'PT_P', 'Pt_1',
+                'Pt_2', 'Pt_3', 'Hc1', 'Hc2', 'Hc3', 'Hc4'];  
     
 $(document).ready(function() {
 	//setLastRunOptions(null);
@@ -57,7 +62,7 @@ function initialPopulateDropdown(hourDiff, hourfield, dayfield, monthfield, year
         }
         yearfield.options[0]=new Option(today.getUTCFullYear(), today.getUTCFullYear(), true, true) //select today's year
         
-        for (var ii = 0; ii < 2; ii++)
+        for (var ii = 0; ii < cryoVal.length; ii++)
             cryofield.options[ii] = new Option(cryoVal[ii], ii);
         cryofield.options[0] = new Option(cryoVal[0], 0, true, true);
         
@@ -78,7 +83,7 @@ function getTemperatureFromDbToPlot(){
          text: 'Cryogenic Variable vs UTC'
       },
        subtitle: {
-          text: 'as reported by Automat server (134.158.176.112)'
+          text: 'as reported by Automate server'
       },
       xAxis: {
          type: 'datetime',
@@ -157,11 +162,12 @@ function getTemperatureFromDbToPlot(){
     var startmonth = parseInt($('#firstmonthdropdown').val()) + 1;
     var startday = parseInt($('#firstdaydropdown').val());
     var starthour = parseInt($('#firsthourdropdown').val());
-    var cryoElement = parseInt($('#cryomeasurement').val()); 
+    var cryoElement = cryoVal[parseInt($('#cryomeasurement').val())]; 
     
     db.view("cryo_2/getData",  {
-        endkey:[ endyear, endmonth, endday, endhour, 0],
-        startkey:[startyear , startmonth, startday, starthour, 0],
+        endkey:[ cryoElement.valueOf(), endyear, endmonth, endday, endhour, 0, 0],
+        startkey:[cryoElement.valueOf(), startyear , startmonth, startday, starthour, 0, 0],
+        reduce:false,
         success:function(data){ 
             var temps = [];
             
@@ -177,19 +183,90 @@ function getTemperatureFromDbToPlot(){
                             temps.push([currentdate, t]);
                         }
                 });*/
-                var number = row.value[cryoElement+1];  
+                var number = row.value;  
                 var tnum = new Number(number+'').toFixed(parseInt(10));
                 var t = parseFloat(tnum);
-                var currentdate =  row.value[0]*1000.0
+                var currentdate =  row.key[6]*1000.0;
                 temps.push([currentdate, t]);
 				
             });
             
             options.series[0].data = temps;
-			options.series[0].name = cryoVal[cryoElement];
+			options.series[0].name = cryoElement.valueOf();
 			chart = new Highcharts.Chart(options);
          },
          error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
          
     });
+    
+    //do it again, but with the reduce = true and group_level = 1
+    db.view("cryo_2/getData",  {
+        endkey:[ cryoElement.valueOf(), endyear, endmonth, endday, endhour, 0, 0],
+        startkey:[cryoElement.valueOf(), startyear , startmonth, startday, starthour, 0, 0],
+        group_level:1,
+        success:function(data){ 
+
+            var row = data.rows[0];
+            /*var sum = parseFloat( new Number(row.value["sum"]+'').toFixed(parseInt(10)) );
+            var count = parseFloat( new Number(row.value["count"]+'').toFixed(parseInt(10)) );
+            var min = parseFloat( new Number(row.value["min"]+'').toFixed(parseInt(10)) );
+            var max = parseFloat( new Number(row.value["max"]+'').toFixed(parseInt(10)) );
+            var sumsqr = parseFloat( new Number(row.value["sumsqr"]+'').toFixed(parseInt(10)) );
+            */
+            //var sum = row.value.sum;
+            //var count = row.value.count
+            if (row){
+                var mean = row.value.sum / row.value.count;
+            var stddev = Math.sqrt(row.value.sumsqr/row.value.count - mean*mean);
+            
+            addToStats(mean, stddev, row.value.min, row.value.max, row.value.sum, row.value.count, row.value.sumsqr);
+            }
+            
+            
+         },
+         error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+         
+    });
+    
 }
+
+function addToStats(mean, stddev, min, max, sum, count, sumsqr)
+{
+    var data=document.getElementById("data");
+    while(data.hasChildNodes()){
+        data.removeChild(data.childNodes[0])
+    }
+
+    var meanL = document.createElement('li');
+    meanL.appendChild(document.createTextNode("Mean: " + mean))
+    data.appendChild(meanL);
+    
+    var stddevL = document.createElement('li');
+    stddevL.appendChild(document.createTextNode("StdDev: " +stddev))
+    data.appendChild(stddevL);
+    
+    var minL = document.createElement('li');
+    minL.appendChild(document.createTextNode("Min: " +min))
+    data.appendChild(minL);
+    
+    var maxL = document.createElement('li');
+    maxL.appendChild(document.createTextNode("Max: " +max))
+    data.appendChild(maxL);
+    
+    var sumL = document.createElement('li');
+    sumL.appendChild(document.createTextNode("Sum: " +sum))
+    data.appendChild(sumL);
+    
+    var countL = document.createElement('li');
+    countL.appendChild(document.createTextNode("Counts: " +count))
+    data.appendChild(countL);
+    
+    var sumsqrL = document.createElement('li');
+    sumsqrL.appendChild(document.createTextNode("Sum of Squares:  " +sumsqr))
+    data.appendChild(sumsqrL);   
+    
+    
+    //$('ul#data').write(statistics);
+
+}
+
