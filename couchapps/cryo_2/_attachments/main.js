@@ -183,9 +183,12 @@ function getTemperatureFromDbToPlot(){
                             temps.push([currentdate, t]);
                         }
                 });*/
+                
                 var number = row.value;  
                 var tnum = new Number(number+'').toFixed(parseInt(10));
                 var t = parseFloat(tnum);
+                if(cryoElement.valueOf() == 'P_regul')
+                   t = t*1000000.0;
                 var currentdate =  row.key[6]*1000.0;
                 temps.push([currentdate, t]);
 				
