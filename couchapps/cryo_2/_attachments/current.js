@@ -1,6 +1,6 @@
 var db = $.couch.db(window.location.pathname.split("/")[1]);
 
-var cryoVal=['T_Bolo', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
+var cryoVal=['T_Bolo', 'P_regul', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
                 'P_injection', 'debit', 'I_Alim1', 'I_Alim2',
                 'I_Alim3', 'I_Alim4', 'GM_P', 'PT_P', 'Pt_1',
                 'Pt_2', 'Pt_3', 'Hc1', 'Hc2', 'Hc3', 'Hc4', 'Co_France',

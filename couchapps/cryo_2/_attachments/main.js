@@ -3,7 +3,7 @@ var db = $.couch.db(window.location.pathname.split("/")[1]);
 var monthtext=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
 
 //the order of the elements in cryoVal must match the order of the output values in the getData view!
-var cryoVal=['T_Bolo', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
+var cryoVal=['T_Bolo', 'P_regul', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
                 'P_injection', 'debit', 'I_Alim1', 'I_Alim2',
                 'I_Alim3', 'I_Alim4', 'GM_P', 'PT_P', 'Pt_1',
                 'Pt_2', 'Pt_3', 'Hc1', 'Hc2', 'Hc3', 'Hc4'];  

@@ -1,6 +1,8 @@
 function(doc) {
     if(doc.type == "automat_data" && doc.ipaddr == "134.158.176.112") {
 	   emit( ["T_Bolo", doc.date['year'], doc.date['month'], doc.date['day'], doc.date['hour'], doc.date['minute'], doc["utctime"]], doc["T_Bolo"]);
+	   
+	   emit( ["P_regul", doc.date['year'], doc.date['month'], doc.date['day'], doc.date['hour'], doc.date['minute'], doc["utctime"]], doc["P_regul"]);
 	
 	   emit( ["T_Speer", doc.date['year'], doc.date['month'], doc.date['day'], doc.date['hour'], doc.date['minute'],doc["utctime"]], doc["T_Speer"]);
 	
