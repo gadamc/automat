@@ -29,6 +29,7 @@ function fillData()
             else{
                 displayError();
             }
+            
          },
          error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
          
