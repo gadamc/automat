@@ -1,74 +1,117 @@
 var db = $.couch.db(window.location.pathname.split("/")[1]);
+var now = new Date();
+var fourHoursAgo=new Date();
+fourHoursAgo.setUTCHours(fourHoursAgo.getUTCHours() - 4);
 
-var monthtext=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
-
-//the order of the elements in cryoVal must match the order of the output values in the getData view!
-var cryoVal=['T_Bolo', 'P_regul', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
-                'P_injection', 'debit', 'I_Alim1', 'I_Alim2',
-                'I_Alim3', 'I_Alim4', 'GM_P', 'PT_P', 'Pt_1',
-                'Pt_2', 'Pt_3', 'Hc1', 'Hc2', 'Hc3', 'Hc4'];  
-    
 $(document).ready(function() {
-	//setLastRunOptions(null);
-    //setFirstRunOptions(null);
-    initialPopulateDropdown(0, "lasthourdropdown", "lastdaydropdown", "lastmonthdropdown", "lastyeardropdown", "cryomeasurement")
-    initialPopulateDropdown(4, "firsthourdropdown", "firstdaydropdown", "firstmonthdropdown", "firstyeardropdown", "cryomeasurement")
-    getTemperatureFromDbToPlot();
-                    
-    $('#getTempsId').click(function(e) {
 
-    	//setTableTopRow();
+
+          $('#idate').datetimepicker({
+            numberOfMonths: 1,
+            showButtonPanel: true,
+            changeMonth: true,
+            changeYear: true,
+            defaultDate: fourHoursAgo,
+            addSliderAccess: true,
+            sliderAccessArgs: { touchonly: false },
+            onClose: function(dateText, inst) {
+                  var endDateTextBox = $('#fdate');
+                  if (endDateTextBox.val() != '') {
+                      var testStartDate = new Date(dateText);
+                      var testEndDate = new Date(endDateTextBox.val());
+                      if (testStartDate > testEndDate)
+                          endDateTextBox.val(dateText);
+                  }
+                  else {
+                      endDateTextBox.val(dateText);
+                  }
+              },
+              onSelect: function (selectedDateTime){
+                  var start = $(this).datetimepicker('getDate');
+                  $('#fdate').datetimepicker('option', 'minDate', new Date(start.getTime()));
+              }
+          });
+          $('#fdate').datetimepicker({
+            numberOfMonths: 1,
+            showButtonPanel: true,
+            defaultDate: now,
+            changeMonth: true,
+            changeYear: true,
+            addSliderAccess: true,
+            sliderAccessArgs: { touchonly: false },
+              onClose: function(dateText, inst) {
+                  var startDateTextBox = $('#idate');
+                  if (startDateTextBox.val() != '') {
+                      var testStartDate = new Date(startDateTextBox.val());
+                      var testEndDate = new Date(dateText);
+                      if (testStartDate > testEndDate)
+                          startDateTextBox.val(dateText);
+                  }
+                  else {
+                      startDateTextBox.val(dateText);
+                  }
+              },
+              onSelect: function (selectedDateTime){
+                  var end = $(this).datetimepicker('getDate');
+                  $('#idate').datetimepicker('option', 'maxDate', new Date(end.getTime()) );
+              }
+          });
           
-        //getTemperatureFromDb();                                  
-                
-        getTemperatureFromDbToPlot();
-                                        
+         $('#fdate').datetimepicker('setDate', now );
+      $('#idate').datetimepicker('setDate', fourHoursAgo );
+    
+       
+    var cryoSelector =  document.getElementById('icryovars');
+                 
+     db.view("cryo_2/getData2",  {
+         reduce:true,
+         group_level:1,
+         success:function(data){ 
+             var dataPoints = [];
+
+             jQuery.each(data.rows, function(i, row){
+
+                 var cryoVar = row.key[0]; 
+                 console.log(cryoVar)
+                 var opt = document.createElement("option");
+                 opt.text = cryoVar;
+                 opt.value= cryoVar;
+                 
+                 if (cryoVar == 'T_Bolo'){
+                   console.log(opt)
+                   opt.selected="selected";
+                   cryoSelector.add( opt, null);
+                   cryoSelector.selectedIndex = cryoSelector.length-1;
+                   console.log(cryoSelector.length-1)
+                   //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, true, true);
+                 }
+                 else {
+                   console.log(opt)
+                   //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, false, false);
+                   cryoSelector.add( opt, null);
+                 }
+             });
+             
+             getTemperatureFromDbToPlot();
+          },
+          error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+
      });
-
+     
     
+     $('#getTempsId').click(function(e) {
+
+     	//setTableTopRow();
+
+         //getTemperatureFromDb();                                  
+
+         getTemperatureFromDbToPlot();
+
+      });
+    
+     
 });
-  /***********************************************
-    * Drop Down Date select script- by JavaScriptKit.com
-    * This notice MUST stay intact for use
-    * Visit JavaScript Kit at http://www.javascriptkit.com/ for this script and more
-    ***********************************************/
 
-
-function initialPopulateDropdown(hourDiff, hourfield, dayfield, monthfield, yearfield, cryo){
-        var today=new Date();
-        today.setUTCHours(today.getUTCHours() - hourDiff);
-        var hourfield=document.getElementById(hourfield);
-        var dayfield=document.getElementById(dayfield);
-        var monthfield=document.getElementById(monthfield);
-        var yearfield=document.getElementById(yearfield);
-        var cryofield=document.getElementById(cryo);
-        for (var i=0; i<24; i++)
-            hourfield.options[i]=new Option(i, i)
-        hourfield.options[today.getUTCHours()+1]=new Option(today.getUTCHours()+1, today.getUTCHours()+1, true, true) //select today's day
-        
-        for (var i=0; i<31; i++)
-            dayfield.options[i]=new Option(i+1, i+1)
-        dayfield.options[today.getUTCDate()-1]=new Option(today.getUTCDate(), today.getUTCDate(), true, true) //select today's day
-        
-        for (var m=0; m<12; m++)
-            monthfield.options[m]=new Option(monthtext[m], m)
-            
-        monthfield.options[today.getUTCMonth()]=new Option(monthtext[today.getUTCMonth()], today.getUTCMonth(), true, true) //select today's month
-        
-        var thisyear=today.getUTCFullYear()
-        for (var y=0; y<2; y++){
-            yearfield.options[y]=new Option(thisyear, thisyear)
-            thisyear-=1
-        }
-        yearfield.options[0]=new Option(today.getUTCFullYear(), today.getUTCFullYear(), true, true) //select today's year
-        
-        for (var ii = 0; ii < cryoVal.length; ii++)
-            cryofield.options[ii] = new Option(cryoVal[ii], ii);
-        cryofield.options[0] = new Option(cryoVal[0], 0, true, true);
-        
-}
- 
-    
 function getTemperatureFromDbToPlot(){
 
    var chart;
@@ -153,71 +196,44 @@ function getTemperatureFromDbToPlot(){
     };
         
    	
-    var db = $.couch.db(window.location.pathname.split("/")[1]);
-    var endyear = parseInt($('#lastyeardropdown').val());
-    var endmonth = parseInt($('#lastmonthdropdown').val()) + 1;
-    var endday = parseInt($('#lastdaydropdown').val());
-    var endhour = parseInt($('#lasthourdropdown').val());
-    var startyear = parseInt($('#firstyeardropdown').val());
-    var startmonth = parseInt($('#firstmonthdropdown').val()) + 1;
-    var startday = parseInt($('#firstdaydropdown').val());
-    var starthour = parseInt($('#firsthourdropdown').val());
-    var cryoElement = cryoVal[parseInt($('#cryomeasurement').val())]; 
-    
-    db.view("cryo_2/getData",  {
-        endkey:[ cryoElement.valueOf(), endyear, endmonth, endday, endhour, 0, 0],
-        startkey:[cryoElement.valueOf(), startyear , startmonth, startday, starthour, 0, 0],
+     var startDate = Date.parse($("#idate").val())/1000.0;
+     var endDate = Date.parse($("#fdate").val())/1000.0;
+     
+    db.view("cryo_2/getData2",  {
+        endkey:[ $('#icryovars').val(), endDate],
+        startkey:[$('#icryovars').val(), startDate],
         reduce:false,
         success:function(data){ 
-            var temps = [];
+            var dataPoints = [];
             
             jQuery.each(data.rows, function(i, row){
-                /*db.openDoc(row["id"],{
-                      async: false,
-                      success:function(ddoc){
-                            
-                            var number = ddoc[cryoVal[cryoElement]];  
-                            var tnum = new Number(number+'').toFixed(parseInt(5));
-                            var t = parseFloat(tnum);
-                            var currentdate =  ddoc.utctime; //row.value[0]*1000.0
-                            temps.push([currentdate, t]);
-                        }
-                });*/
                 
                 var number = row.value;  
                 var tnum = new Number(number+'').toFixed(parseInt(10));
-                var t = parseFloat(tnum);
-                if(cryoElement.valueOf() == 'P_regul')
-                   t = t*1000000.0;
-                var currentdate =  row.key[6]*1000.0;
-                temps.push([currentdate, t]);
-				
+                var value = parseFloat(tnum);
+                if($('#icryovars').val() == 'P_regul')
+                   value = value*1000000.0;
+                var currentdate =  row.key[1]*1000.0;
+                dataPoints.push([currentdate, value]);
+
             });
             
-            options.series[0].data = temps;
-			options.series[0].name = cryoElement.valueOf();
-			chart = new Highcharts.Chart(options);
+            options.series[0].data = dataPoints;
+            options.series[0].name = $('#icryovars').val();
+            chart = new Highcharts.Chart(options);
          },
          error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
          
     });
     
     //do it again, but with the reduce = true and group_level = 1
-    db.view("cryo_2/getData",  {
-        endkey:[ cryoElement.valueOf(), endyear, endmonth, endday, endhour, 0, 0],
-        startkey:[cryoElement.valueOf(), startyear , startmonth, startday, starthour, 0, 0],
+    db.view("cryo_2/getData2",  {
+        endkey:[ $('#icryovars').val(), endDate],
+        startkey:[$('#icryovars').val(), startDate],
         group_level:1,
         success:function(data){ 
 
             var row = data.rows[0];
-            /*var sum = parseFloat( new Number(row.value["sum"]+'').toFixed(parseInt(10)) );
-            var count = parseFloat( new Number(row.value["count"]+'').toFixed(parseInt(10)) );
-            var min = parseFloat( new Number(row.value["min"]+'').toFixed(parseInt(10)) );
-            var max = parseFloat( new Number(row.value["max"]+'').toFixed(parseInt(10)) );
-            var sumsqr = parseFloat( new Number(row.value["sumsqr"]+'').toFixed(parseInt(10)) );
-            */
-            //var sum = row.value.sum;
-            //var count = row.value.count
             if (row){
                 var mean = row.value.sum / row.value.count;
             var stddev = Math.sqrt(row.value.sumsqr/row.value.count - mean*mean);
@@ -256,17 +272,17 @@ function addToStats(mean, stddev, min, max, sum, count, sumsqr)
     maxL.appendChild(document.createTextNode("Max: " +max))
     data.appendChild(maxL);
     
-    var sumL = document.createElement('li');
-    sumL.appendChild(document.createTextNode("Sum: " +sum))
-    data.appendChild(sumL);
-    
-    var countL = document.createElement('li');
-    countL.appendChild(document.createTextNode("Counts: " +count))
-    data.appendChild(countL);
-    
-    var sumsqrL = document.createElement('li');
-    sumsqrL.appendChild(document.createTextNode("Sum of Squares:  " +sumsqr))
-    data.appendChild(sumsqrL);   
+    // var sumL = document.createElement('li');
+    //     sumL.appendChild(document.createTextNode("Sum: " +sum))
+    //     data.appendChild(sumL);
+    //     
+    //     var countL = document.createElement('li');
+    //     countL.appendChild(document.createTextNode("Counts: " +count))
+    //     data.appendChild(countL);
+    //     
+    //     var sumsqrL = document.createElement('li');
+    //     sumsqrL.appendChild(document.createTextNode("Sum of Squares:  " +sumsqr))
+    //     data.appendChild(sumsqrL);   
     
     
     //$('ul#data').write(statistics);
