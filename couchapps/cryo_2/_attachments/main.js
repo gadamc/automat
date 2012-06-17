@@ -272,20 +272,6 @@ function addToStats(mean, stddev, min, max, sum, count, sumsqr)
     maxL.appendChild(document.createTextNode("Max: " +max))
     data.appendChild(maxL);
     
-    // var sumL = document.createElement('li');
-    //     sumL.appendChild(document.createTextNode("Sum: " +sum))
-    //     data.appendChild(sumL);
-    //     
-    //     var countL = document.createElement('li');
-    //     countL.appendChild(document.createTextNode("Counts: " +count))
-    //     data.appendChild(countL);
-    //     
-    //     var sumsqrL = document.createElement('li');
-    //     sumsqrL.appendChild(document.createTextNode("Sum of Squares:  " +sumsqr))
-    //     data.appendChild(sumsqrL);   
-    
-    
-    //$('ul#data').write(statistics);
 
 }
 

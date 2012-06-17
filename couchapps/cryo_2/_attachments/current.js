@@ -1,13 +1,27 @@
 var db = $.couch.db(window.location.pathname.split("/")[1]);
 
-var cryoVal=['T_Bolo', 'P_regul', 'T_Speer', 'T_PT1', 'T_B1K', 'P_B1K',
-                'P_injection', 'debit', 'I_Alim1', 'I_Alim2',
-                'I_Alim3', 'I_Alim4', 'GM_P', 'PT_P', 'Pt_1',
-                'Pt_2', 'Pt_3', 'Hc1', 'Hc2', 'Hc3', 'Hc4', 'Co_France',
-                'Co_Italie', 'Ba_grotte', 'Ba_nemo']; 
+var cryoVal= new Array();
 
 $(document).ready(function() {
-    fillData();
+  
+  db.view("cryo_2/getData2",  {
+       reduce:true,
+       group_level:1,
+       async:false,
+       success:function(data){ 
+           var dataPoints = [];
+
+           jQuery.each(data.rows, function(i, row){
+             cryoVal.push(row.key[0]);
+               
+           });
+           fillData();
+           
+        },
+        error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+
+   });
+   
 });
 
 function fillData()
@@ -37,11 +51,12 @@ function fillData()
 }
 
 function addToStats(doc){
-    var p = document.getElementById("title");
+    var p = document.getElementById("date");
     var today = new Date(doc.utctime*1000.0)
-    p.innerHTML = "<h1>Latest Readings from the Cryostat</h1><br>";
-    p.innerHTML += today.toUTCString();
-    p.innerHTML += "<br><br>";
+    p.innerHTML = today.toUTCString();
+    
+    var p = document.getElementById("datatitle");
+    p.innerHTML = "";
     
     var tbl = document.getElementById('data');
 	var tblbody = tbl.getElementsByTagName("tbody");
@@ -71,7 +86,7 @@ function addToStats(doc){
 }
 
 function displayError(){
-    var p = document.getElementById("title");
+    var p = document.getElementById("datatitle");
     p.innerHTML = "<h1>Failed to get document from the database.</h1>";
 
 }
