@@ -93,8 +93,7 @@ $(document).ready(function() {
              });
              
              getTemperatureFromDbToPlot();
-          },
-          error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+          }
 
      });
      
@@ -221,8 +220,7 @@ function getTemperatureFromDbToPlot(){
             options.series[0].data = dataPoints;
             options.series[0].name = $('#icryovars').val();
             chart = new Highcharts.Chart(options);
-         },
-         error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+         }
          
     });
     
@@ -242,8 +240,7 @@ function getTemperatureFromDbToPlot(){
             }
             
             
-         },
-         error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+         }
          
     });
     

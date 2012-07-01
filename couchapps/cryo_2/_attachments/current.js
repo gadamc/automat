@@ -17,8 +17,7 @@ $(document).ready(function() {
            });
            fillData();
            
-        },
-        error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+        }
 
    });
    
@@ -44,8 +43,7 @@ function fillData()
                 displayError();
             }
             
-         },
-         error: function(req, textStatus, errorThrown){alert('Error '+ textStatus);}
+         }
          
     });
 }
