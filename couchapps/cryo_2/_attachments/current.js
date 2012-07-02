@@ -4,6 +4,23 @@ var cryoVal= new Array();
 
 $(document).ready(function() {
   
+  //fill in the nav bar at the top of the page
+  //using info in the webinterface database
+  $.couch.db("webinterface").openDoc("navbar", {
+    success: function(data) {
+      console.log(data);
+      var items = [];
+
+      for (var link in data['list']){
+        console.log(link + data['list'][link]);
+        items.push('<li ><a href="' + link + '">' + data['list'][link] + '</a></li>');
+      }
+      console.log(items);
+      $('#navbarList').append( items.join('') );
+
+    }
+  });
+
   db.view("cryo_2/getData2",  {
        reduce:true,
        group_level:1,
