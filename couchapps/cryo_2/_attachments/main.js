@@ -8,14 +8,11 @@ $(document).ready(function() {
           //using info in the webinterface database
           $.couch.db("webinterface").openDoc("navbar", {
             success: function(data) {
-              console.log(data);
               var items = [];
 
               for (var link in data['list']){
-                console.log(link + data['list'][link]);
                 items.push('<li ><a href="' + link + '">' + data['list'][link] + '</a></li>');
               }
-              console.log(items);
               $('#navbarList').append( items.join('') );
 
             }
@@ -87,21 +84,17 @@ $(document).ready(function() {
              jQuery.each(data.rows, function(i, row){
 
                  var cryoVar = row.key[0]; 
-                 console.log(cryoVar)
                  var opt = document.createElement("option");
                  opt.text = cryoVar;
                  opt.value= cryoVar;
                  
                  if (cryoVar == 'T_Bolo'){
-                   console.log(opt)
                    opt.selected="selected";
                    cryoSelector.add( opt, null);
                    cryoSelector.selectedIndex = cryoSelector.length-1;
-                   console.log(cryoSelector.length-1)
                    //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, true, true);
                  }
                  else {
-                   console.log(opt)
                    //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, false, false);
                    cryoSelector.add( opt, null);
                  }
