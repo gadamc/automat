@@ -6,7 +6,8 @@ function(doc) {
                       'Pt_2', 'Pt_3', 'Hc1', 'Hc2', 'Hc3', 'Hc4'];
                       
        for (i in cryoVal) {
-         emit([cryoVal[i], doc["utctime"]], doc[cryoVal[i]] );
+        if(doc[cryoVal[i]] != undefined)
+          emit([cryoVal[i], doc["utctime"]], doc[cryoVal[i]] );
        }
 	   
     }
