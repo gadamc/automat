@@ -63,7 +63,6 @@ $(document).ready(function() {
   db.view("cryo_2/getData2",  {
        reduce:true,
        group_level:1,
-       async:false,
        success:function(data){ 
            var dataPoints = [];
 
