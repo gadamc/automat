@@ -125,7 +125,7 @@ $(document).ready(function() {
     //       }
 
     //  });
-    getTemperatureFromDbToPlot(); 
+    //getTemperatureFromDbToPlot(); 
     
      $('#getTempsId').click(function(e) {
 
