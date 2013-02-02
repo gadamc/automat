@@ -20,7 +20,7 @@ function(doc) {
                       'Tcl1',
                       'Tcl2',
                       'Tcl3',
-                      'Tcl4',
+                      'Tcl4'
                     ];
                       
        for (i in cryoVal) {
