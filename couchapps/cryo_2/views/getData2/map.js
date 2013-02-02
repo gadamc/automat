@@ -24,8 +24,8 @@ function(doc) {
                     ];
                       
        for (i in cryoVal) {
-        if(doc[cryoVal[i]] != undefined)
-          emit([cryoVal[i], doc["utctime"]], doc[cryoVal[i]] );
+        if( !isNaN(doc[cryoVal[i]]) )
+          emit([cryoVal[i], doc["utctime"]], parseFloat(doc[cryoVal[i]]) );
        }
 	   
     }
