@@ -3,6 +3,9 @@ var now = new Date();
 var fourHoursAgo=new Date();
 fourHoursAgo.setUTCHours(fourHoursAgo.getUTCHours() - 4);
 
+//make sure that cryovars.js is loaded by the html before this .js file
+
+
 $(document).ready(function() {
           //fill in the nav bar at the top of the page
           //using info in the webinterface database
@@ -75,36 +78,54 @@ $(document).ready(function() {
        
     var cryoSelector =  document.getElementById('icryovars');
                  
-     db.view("cryo_2/getData2",  {
-         reduce:true,
-         group_level:1,
-         success:function(data){ 
-             var dataPoints = [];
 
-             jQuery.each(data.rows, function(i, row){
+    for(ii in cryoVal){
+      var cryoVar = cryoVal[ii]; 
+      var opt = document.createElement("option");
+      opt.text = cryoVar;
+      opt.value= cryoVar;
 
-                 var cryoVar = row.key[0]; 
-                 var opt = document.createElement("option");
-                 opt.text = cryoVar;
-                 opt.value= cryoVar;
+      if (cryoVar == 'T_Bolo'){
+       opt.selected="selected";
+       cryoSelector.add( opt, null);
+       cryoSelector.selectedIndex = cryoSelector.length-1;
+       //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, true, true);
+      }
+      else {
+       //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, false, false);
+       cryoSelector.add( opt, null);
+      }
+    }
+    // db.view("cryo_2/getData2",  {
+    //      reduce:true,
+    //      group_level:1,
+    //      success:function(data){ 
+    //          var dataPoints = [];
+
+    //          jQuery.each(data.rows, function(i, row){
+
+    //              var cryoVar = row.key[0]; 
+    //              var opt = document.createElement("option");
+    //              opt.text = cryoVar;
+    //              opt.value= cryoVar;
                  
-                 if (cryoVar == 'T_Bolo'){
-                   opt.selected="selected";
-                   cryoSelector.add( opt, null);
-                   cryoSelector.selectedIndex = cryoSelector.length-1;
-                   //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, true, true);
-                 }
-                 else {
-                   //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, false, false);
-                   cryoSelector.add( opt, null);
-                 }
-             });
+    //              if (cryoVar == 'T_Bolo'){
+    //                opt.selected="selected";
+    //                cryoSelector.add( opt, null);
+    //                cryoSelector.selectedIndex = cryoSelector.length-1;
+    //                //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, true, true);
+    //              }
+    //              else {
+    //                //cryoSelector.options[ cryoSelector.length] = new Option(cryoVar, cryoVar, false, false);
+    //                cryoSelector.add( opt, null);
+    //              }
+    //          });
              
-             getTemperatureFromDbToPlot();
-          }
+    //          getTemperatureFromDbToPlot();
+    //       }
 
-     });
-     
+    //  });
+    getTemperatureFromDbToPlot(); 
     
      $('#getTempsId').click(function(e) {
 
