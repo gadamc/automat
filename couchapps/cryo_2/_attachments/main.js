@@ -132,6 +132,9 @@ $(document).ready(function() {
      	//setTableTopRow();
 
          //getTemperatureFromDb();                                  
+         //$('#getTempsId').innerHTML="...loading"
+         document.getElementById("getTempsId").disabled=true;
+         $("#chart").html("...loading the data...");
 
          getTemperatureFromDbToPlot();
 
@@ -249,7 +252,15 @@ function getTemperatureFromDbToPlot(){
             options.series[0].data = dataPoints;
             options.series[0].name = $('#icryovars').val();
             chart = new Highcharts.Chart(options);
-         }
+            document.getElementById("getTempsId").disabled=false;
+         },
+        error: function(req, textStatus, errorThrown){
+          $("#chart").html("an error occurred...");
+          console.log('an error was thrown:');
+          console.log(errorThrown);
+          document.getElementById("getTempsId").disabled=false;
+          // $('#button-plot').removeAttr("disabled").removeClass( 'ui-state-disabled' ); 
+        }
          
     });
     
