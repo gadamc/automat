@@ -58,6 +58,7 @@ def getValues():
     stillLooking = True
     foundStartConfig = False;
     
+
     valuelist = list()
     flaglist = list()
     indexlist = list()
@@ -180,7 +181,26 @@ def getConfig():
     
     return [namelist, typelist]
 
+def getDatabase(servname, dbn):
 
+    try:
+        serv = Server(servname)
+        db = serv.get_or_create_db(dbn)
+
+        
+    except:
+        try: #if we cannot connect to the given database, we try the local database before giving up
+            print 'unable to connect to', servname
+            print 'trying local database'
+            serv = Server('http://localhost:5984')
+            db = serv.get_or_create_db(dbn)
+
+        except Exception as e:
+            print e
+            raise e
+
+    print 'connected to', db.uri
+    return db, serv
 
 def main(*args):
     '''
@@ -206,6 +226,10 @@ def main(*args):
     dbname = args[3]
     sleeptime = int(args[4])
 
+    if sleeptime > 8*60:
+        print 'sleep time must be less than eight minutes, or change the maxTimeBeforeError below in the script. yes eight minutes is random, but its bigger than five and less than ten....'
+        return
+
     print automatip, port, couchS, dbname, sleeptime
 
     global s
@@ -223,10 +247,9 @@ def main(*args):
     startController = re.compile('[$]{2};3;.*')
     startClients = re.compile('[$]{2};4;.*')
     completeRec = re.compile('\w+;\w+;\w+')
-    
-    serv = Server(couchS)
-    db = serv[dbname]
-    print db.info()
+
+        
+    db, coServ = getDatabase(couchS, dbname)
             
     try:    
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -255,9 +278,15 @@ def main(*args):
     checkpoint = 4
     docs = list()
 
+    timeOfLastUpload = datetime.datetime.now()
+    
+    maxTimeBeforeError = datetime.timedelta(minutes=8)
+
     try:
         while True:
-            
+            if datetime.datetime.now() > timeOfLastUpload + maxTimeBeforeError:
+                raise Exception("max time reached! Quitting script. Hopefully Mac Launch Daemon automatically restarts")
+
             ret = getValues()
             
             flaglist = ret[1]
@@ -283,8 +312,10 @@ def main(*args):
             docs.append(doc)    
 
             if len(docs)%checkpoint==0:
+                db, coServ = getDatabase(couchS, dbname)
                 docs = upload(db,docs)
-                
+                timeOfLastUpload = datetime.datetime.now()
+
             if sleeptime != 0:
                 s.close()
                 time.sleep(sleeptime)  #sleep...
@@ -296,7 +327,8 @@ def main(*args):
         print inst.args      # arguments stored in .args
         print inst           # __str__ allows args to printed directly
 
-    #finish uploading any docs. 
+    #finish uploading any docs.
+    db, coServ = getDatabase(couchS, dbname)
     docs = upload(db,docs)
 
 
