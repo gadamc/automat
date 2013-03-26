@@ -4,12 +4,29 @@ import socket, re, sys, copy, datetime, time, math
 from couchdbkit import Server, Database
 
 
+def ipmap(ip):
+    '''
+    The IP addresses of the automat servers have changed. Here the translation of the new IP address to the old IP addresses is done so as not to break down-stream analysis of the data.
+
+    This map must be updated whenever the local automat IP address change.
+    '''
+    if ip == '192.168.3.1':
+        return '134.158.176.110'
+    if ip == '192.168.3.2':
+        return '134.158.176.111'
+    if ip == '192.168.3.3':
+        return '134.158.176.112'
+
+    #if we don't find a match, just return the input
+    return ip
+
 def buildDoc(ip, port):
     doc = dict()
     doc['author'] = 'Adam Cox'
     doc['type'] = 'automat_data'
     dd = datetime.datetime.utcnow()
-    doc['ipaddr'] = ip
+    doc['real_ip_address'] = ip  
+    doc['ipaddr'] = ipmap(ip)  #this is "spoofed" to the old IP address so everything works
     doc['port'] = port
     doc['date'] = {'year':dd.year, 'month':dd.month, 'day':dd.day, 'hour':dd.hour, \
         'minute':dd.minute, 'second':dd.second, 'microsecond':dd.microsecond} 
