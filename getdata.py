@@ -59,7 +59,7 @@ def formatvalue(value):
 #_____________
 # upload
 def upload(db, docs):
-    print 'upload', len(docs), 'docs at', datetime.datetime.now()
+    print 'upload', len(docs), 'docs at', datetime.datetime.utcnow()
     db.bulk_save(docs)
     del docs
     return list()
@@ -274,13 +274,13 @@ def main(*args):
     
     except Exception as e:
         print e
-        print 'socket exception... will wait one minute'
-        doc = buildDoc(automatip, port)
-        subdoc = {}
-        subdoc['type'] = type(e)
-        subdoc['args'] = e.args
-        doc['exception'] = subdoc
-        db.save_doc(doc)
+        print datetime.datetime.utcnow(), 'socket exception... will wait one minute'
+        # doc = buildDoc(automatip, port)
+        # subdoc = {}
+        # subdoc['type'] = type(e)
+        # subdoc['args'] = e.args
+        # doc['exception'] = subdoc
+        # db.save_doc(doc)
         
         time.sleep(60.0)
         main(*args)
@@ -295,13 +295,13 @@ def main(*args):
     checkpoint = 4
     docs = list()
 
-    timeOfLastUpload = datetime.datetime.now()
+    timeOfLastUpload = datetime.datetime.utcnow()
     
     maxTimeBeforeError = datetime.timedelta(minutes=8)
 
     try:
         while True:
-            if datetime.datetime.now() > timeOfLastUpload + maxTimeBeforeError:
+            if datetime.datetime.utcnow() > timeOfLastUpload + maxTimeBeforeError:
                 raise Exception("max time reached! Quitting script. Hopefully Mac Launch Daemon automatically restarts")
 
             ret = getValues()
@@ -331,7 +331,7 @@ def main(*args):
             if len(docs)%checkpoint==0:
                 db, coServ = getDatabase(couchS, dbname)
                 docs = upload(db,docs)
-                timeOfLastUpload = datetime.datetime.now()
+                timeOfLastUpload = datetime.datetime.utcnow()
 
             if sleeptime != 0:
                 s.close()
