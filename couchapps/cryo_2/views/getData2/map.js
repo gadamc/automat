@@ -24,9 +24,10 @@ function(doc) {
                     ];
                       
        for (i in cryoVal) {
-        if( !isNaN(doc[cryoVal[i]]) )
-          emit([cryoVal[i], doc["utctime"]], parseFloat(doc[cryoVal[i]]) );
-       }
+          if( typeof doc[cryoVal[i]] === 'number')
+            emit([cryoVal[i], doc["utctime"]], doc[cryoVal[i]] );
+          
+        }
 	   
     }
 }
