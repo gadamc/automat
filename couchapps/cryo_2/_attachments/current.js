@@ -42,7 +42,7 @@ $(document).ready(function() {
 function fillData()
 {
     db.view("data/byipaddress",  {
-        key:"134.158.176.112",
+	startkey:["134.158.176.112", new Date().getTime()/1000.0],
         reduce:false,
         descending:true,
         include_docs:true,
