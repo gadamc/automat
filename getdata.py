@@ -9,12 +9,18 @@ def ipmap(ip):
     The IP addresses of the automat servers have changed. Here the translation of the new IP address to the old IP addresses is done so as not to break down-stream analysis of the data.
 
     This map must be updated whenever the local automat IP address change.
+
+   this mechanism is exactly the same mechanism that would be used if we gave each automat a name. in this case, the name is simply the old IP address. it is extremely important to always use theseIP addresses because of how thesoftware for the database website display was written.
+
+  update list::
+   april 3(ish)2013:  first map using 192.168.3 . 1/2/3 
+   may 6 2013:  change to 192.168.3./11/12/13 
     '''
-    if ip == '192.168.3.1':
+    if ip == '192.168.3.11':
         return '134.158.176.110'
-    if ip == '192.168.3.2':
+    if ip == '192.168.3.12':
         return '134.158.176.111'
-    if ip == '192.168.3.3':
+    if ip == '192.168.3.13':
         return '134.158.176.112'
 
     #if we don't find a match, just return the input
