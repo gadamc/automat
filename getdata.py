@@ -292,7 +292,7 @@ def main(*args):
     typelist = ret[1]
 
     
-    checkpoint = 4
+    checkpoint = 50
     docs = list()
 
     timeOfLastUpload = datetime.datetime.utcnow()
