@@ -304,7 +304,7 @@ def main(*args):
 
     timeOfLastUpload = datetime.datetime.utcnow()
     
-    maxTimeBeforeError = datetime.timedelta(minutes=8)
+    maxTimeBeforeError = datetime.timedelta(minutes=14)
 
     maxgetvaluefails  = 10
     failcount = 0
