@@ -276,7 +276,8 @@ def main(*args):
     
     except Exception as e:
         print e
-        print datetime.datetime.utcnow(), 'socket exception... will wait one minute'
+        print datetime.datetime.utcnow(), 'socket exception... will wait one minute and then this script will sys.exit(0). we expect that the cron/launchd will restart this script.' 
+        # Previously, we called main(*args), but this created very long, unreadable tracebacks if a crash occurred after many many socket requests'
         # doc = buildDoc(automatip, port)
         # subdoc = {}
         # subdoc['type'] = type(e)
@@ -285,13 +286,17 @@ def main(*args):
         # db.save_doc(doc)
         
         time.sleep(60.0)
-        main(*args)
-        
+        #main(*args)
+        sys.exit(0) 
         
     ret =  getConfig()
     print 'configuration found'
     namelist = ret[0]
     typelist = ret[1]
+    print 'field names'
+    print namelist
+    print 'field types'
+    print typelist
 
     
     checkpoint = 50
@@ -301,34 +306,60 @@ def main(*args):
     
     maxTimeBeforeError = datetime.timedelta(minutes=8)
 
+    maxgetvaluefails  = 10
+    failcount = 0
     try:
-        while True:
+        while failcount < maxgetvaluefails:
             if datetime.datetime.utcnow() > timeOfLastUpload + maxTimeBeforeError:
                 raise Exception("max time reached! Quitting script. Hopefully Mac Launch Daemon automatically restarts")
 
-            ret = getValues()
-            
-            flaglist = ret[1]
-            valuelist = ret[0]
-            
-            doc = buildDoc(automatip, port)
-            
-            for i in range(len(namelist)):
-                ''' this is too much data..? we just need the values really. 
-                    
-                d = list()
-                if i < len(typelist):
-                    d.append(typelist[i])
-                if i < len(flaglist):
-                    d.append(flaglist[i])
-                if i < len(valuelist):
-                    d.append(valuelist[i])
-                '''
-                if i < len(valuelist):
-                    doc[namelist[i]] = valuelist[i]
-                        
+            print datetime.datetime.utcnow()
 
+            try:
+                retv = ''
+                retv = getValues()
+                 #print retv
+                
+                flaglist = retv[1]
+                valuelist = ret[0]
+            except Exception as e:
+                print '     get values Exception'
+                failcount += 1
+                print '     failcounter set to %d.' % (failcount), 'max number of consecutive fails allowed =', maxgetvaluefails
+                print '     continue to next iteration'
+                continue
+
+            print '     get values success'
+            failcount = 0
+
+            try:
+                doc = buildDoc(automatip, port)
+            except Exception as e:
+                print 'build Doc Exception'
+                print doc
+                raise e
+            print '     build doc success'
+            try:
+                for i in range(len(namelist)):
+                    ''' this is too much data..? we just need the values really. 
+                    
+                    d = list()
+                    if i < len(typelist):
+                    d.append(typelist[i])
+                    if i < len(flaglist):
+                    d.append(flaglist[i])
+                    if i < len(valuelist):
+                    d.append(valuelist[i])
+                    '''
+                    if i < len(valuelist):
+                        doc[namelist[i]] = valuelist[i]
+            except Exception as e:
+                print 'namelist loop exception'
+                raise e
+            
+            print '     data added to doc'
             docs.append(doc)    
+            print '     doc appended'
 
             if len(docs)%checkpoint==0:
                 db, coServ = getDatabase(couchS, dbname)
