@@ -321,7 +321,7 @@ def main(*args):
                  #print retv
                 
                 flaglist = retv[1]
-                valuelist = ret[0]
+                valuelist = retv[0]
             except Exception as e:
                 print '     get values Exception'
                 failcount += 1
