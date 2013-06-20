@@ -16,15 +16,11 @@ def ipmap(ip):
    april 3(ish)2013:  first map using 192.168.3 . 1/2/3 
    may 6 2013:  change to 192.168.3./11/12/13 
     '''
-    if ip == '192.168.3.11':
-        return '134.158.176.110'
-    if ip == '192.168.3.12':
-        return '134.158.176.111'
-    if ip == '192.168.3.13':
-        return '134.158.176.112'
 
-    #if we don't find a match, just return the input
-    return ip
+    ipdict = {'192.168.3.11':'134.158.176.110', '192.168.3.12':'134.158.176.111', '192.168.3.13':'134.158.176.112'}
+
+    return ipdict.get(ip, ip)  #if we don't find a match, just return the input
+
 
 def buildDoc(ip, port):
     doc = dict()
