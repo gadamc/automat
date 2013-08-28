@@ -1,5 +1,5 @@
 var cryoVal=['T_Bolo', 'P_regul', 'T_Speer', //'T_PT1', 
-                'T_B1K', 'P_B1K',
+                'T_B1K', 'P_B1K', 'T_PE1K',
                       'P_injection', 'debit', 'I_Alim1', 'I_Alim2',
                       'I_Alim3', 'I_Alim4',//'GM_P', 'PT_P', 'Pt_1',
                       'Pt_2',// 'Pt_3', 
@@ -29,6 +29,7 @@ var cryoDescriptions = {
   'T_Speer':'T of the mixing chamber (K)', 
 //  'T_PT1':'', 
   'T_B1K':'T of the 1K plate (K)', 
+  'T_PE1K':'T of the Polyethylene at the 1K level (K)'
   'P_B1K':'pressure on the He4 pumping line on the 1K box (mbar)',
   'P_injection':'injection pressure of the He3 in the dilution circuit (mbar)', 
   'debit':'rate of He3 in the dilution circuit (micromol/s)', 
